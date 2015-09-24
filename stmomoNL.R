@@ -53,21 +53,21 @@ plot_q
 persp3d(ages[0:90], years, qxt[0:90,], col="skyblue", shade=TRUE,xlab="Ages (0-100)",
         ylab="Years",zlab="Mortality rate (log)")
 
-Dxtm <- skDemo$rate$male * skDemo$pop$male
-E0xtm <- skDemo$pop$male + 0.5 * Dxtm
-qxtm <- log(Dxtm/E0xtm)
-
-persp3d(ages[0:90], years, qxtm[0:90,], col="skyblue", shade=TRUE,xlab="Ages (0-90)",
-        ylab="Years",zlab="Mortality rate (log)")
-
-Dxtf <- skDemo$rate$female * skDemo$pop$female
-#Dxtf<- pmax(Dxtf, .Machine$double.xmin)
-Dxtf[13,"2006"] <- mean(Dxtf[13,"2005"], Dxtf[13,"2007"])
-E0xtf <- skDemo$pop$female + 0.5 * Dxtf
-qxtf <- log(Dxtf/E0xtf)
-
-persp3d(ages[0:90], years, qxtf[0:90,], col="skyblue", shade=TRUE,xlab="Ages (0-90)",
-        ylab="Years",zlab="Mortality rate (log)")
+# Dxtm <- skDemo$rate$male * skDemo$pop$male
+# E0xtm <- skDemo$pop$male + 0.5 * Dxtm
+# qxtm <- log(Dxtm/E0xtm)
+# 
+# persp3d(ages[0:90], years, qxtm[0:90,], col="skyblue", shade=TRUE,xlab="Ages (0-90)",
+#         ylab="Years",zlab="Mortality rate (log)")
+# 
+# Dxtf <- skDemo$rate$female * skDemo$pop$female
+# #Dxtf<- pmax(Dxtf, .Machine$double.xmin)
+# Dxtf[13,"2006"] <- mean(Dxtf[13,"2005"], Dxtf[13,"2007"])
+# E0xtf <- skDemo$pop$female + 0.5 * Dxtf
+# qxtf <- log(Dxtf/E0xtf)
+# 
+# persp3d(ages[0:90], years, qxtf[0:90,], col="skyblue", shade=TRUE,xlab="Ages (0-90)",
+#         ylab="Years",zlab="Mortality rate (log)")
 
 weights <- genWeightMat(ages.fit, years, 3)
 
@@ -194,7 +194,7 @@ ncols <- ncol(plot_df)
 plot_df <- melt(plot_df, id="years")
 plot_q <- ggplot(data=plot_df, aes(x=years, y=value, colour=variable)) +
   geom_line(na.rm=TRUE, alpha=1, size=1) + 
-  scale_color_manual(values=rainbow(7)) +
+  #scale_color_manual(values=rainbow(7)) +
   geom_point(data=plot_df2, aes(x=years, y=Observed, colour="Observed"), group=1, pch=21, colour="black", size=2, fill="red") +
   theme_minimal() +
   xlab("Years") + ylab("Mortality rates at age 65") + ggtitle("Dutch mortality rates") +
@@ -228,9 +228,14 @@ M8qxtExtr <- M8extrapolate$qxt
 extrapolate <- kannistoExtrapolation(PLATqxt, ages.fit, years_chart)
 PLATqxtExtr <- extrapolate$qxt
 
+## Read in AG table
+ag <- read.csv("ag-total.csv", row.names = 1)
+colnames(ag) <- as.character(2014:(2014+ncol(ag)-1))
+ag <- as.matrix(ag[46:121,], rownames.force=T)
+
 models <- list(LCqxtExtr = LCqxtExtr, APCqxtExtr = APCqxtExtr, 
                CBDqxtExtr = CBDqxtExtr,  M6qxtExtr = M6qxtExtr, 
-               M7qxtExtr = M7qxtExtr, M8qxtExtr = M8qxtExtr, PLATqxtExtr = PLATqxtExtr)
+               M7qxtExtr = M7qxtExtr, M8qxtExtr = M8qxtExtr, PLATqxtExtr = PLATqxtExtr, AG = ag)
 
 ## Annuity projection
 ## Assumption annuity due deffered at 65
@@ -251,8 +256,8 @@ experience.factors$total <- (experience.factors$Male + experience.factors$Female
 
 expF <- experience.factors$total[ages.fit]
 
-BEL <- array(NA, c(7,1))
-rownames(BEL) <- c("LC", "APC", "CBD", "M6", "M7", "M8", "PLAT")
+BEL <- array(NA, c(8,1))
+rownames(BEL) <- c("LC", "APC", "CBD", "M6", "M7", "M8", "PLAT", "AG")
 colnames(BEL) <- "BEL"
 
 for (m in 1:length(models)){
@@ -267,7 +272,7 @@ for (m in 1:length(models)){
 
 
 ## Show BEL per model
-df = data.frame(models = factor(c("LC", "APC", "CBD", "M6", "M7", "M8", "PLAT"), levels=c("LC", "APC", "CBD", "M6", "M7", "M8", "PLAT")),
+df = data.frame(models = factor(c("LC", "APC", "CBD", "M6", "M7", "M8", "PLAT", "AG"), levels=c("LC", "APC", "CBD", "M6", "M7", "M8", "PLAT", "AG")),
                 BEL = BEL)
 
 ggplot(data=df, aes(x=models, y=BEL, fill=models)) +
