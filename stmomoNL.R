@@ -294,7 +294,7 @@ selectBEL <- list()
 
 #modelSim <- sapply(modelsFitted, simulate, nsim = nsim, h = forecastTime)
 
-for (m in 1:models2run){
+for (m in 1:(models2run-1)){
   modelSim[[m]] <- simulate(modelsFitted[[m]], nsim = nsim, h = forecastTime)
   collectBEL <- array(NA, c(200,1))
   for (s in 1:nsim){
@@ -313,7 +313,7 @@ for (m in 1:models2run){
   selectBEL[[m]] <- quantile(collectBEL, probs = 0.995, type = 1)
 }
 
-SCR <- as.numeric(selectBEL) - BEL
+SCR <- as.numeric(selectBEL) - BEL[1:7]
 colnames(SCR) <- "SCR"
 
 ## Plot simulations for LC model
@@ -332,7 +332,7 @@ fan(t(modelSim[[1]]$rates["65", , ]), start = 2010, probs = probs, n.fan = 4,
     fan.col = colorRampPalette(c("yellow", "darkgreen")), ln = NULL)
 
 ## Show BEL per model
-df = data.frame(models = factor(c("LC", "APC", "CBD", "M6", "M7", "M8", "PLAT"), levels=c("LC", "APC", "CBD", "M6", "M7", "M8", "PLAT")), BEL = BEL, SCR = SCR)
+df = data.frame(models = factor(c("LC", "APC", "CBD", "M6", "M7", "M8", "PLAT"), levels=c("LC", "APC", "CBD", "M6", "M7", "M8", "PLAT")), BEL = BEL[1:7], SCR = SCR[1:7])
 plot_df <- melt(df, id="models")
 
 ggplot(data=plot_df, aes(x=models, y=value, fill=variable)) +
