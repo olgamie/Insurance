@@ -712,13 +712,50 @@ plot_q
 
 ## Predictor
 
-<center><img src="img/chart8.png" alt="Drawing" style="width: 700px;"/></center>
+```{r, echo=FALSE, warning=FALSE, message=FALSE, dev="CairoSVG"}
+## Plots
+plot_df    <- data.frame(ages=0:90, qxt[1:91,])
+ncols <- ncol(plot_df)
+plot_df <- melt(plot_df, id="ages")
+plot_q <- ggplot(plot_df, aes(x=ages, y=value, colour=variable)) +
+  #geom_ribbon(aes(ymin=qxt2,ymax=qxt60),fill="lightblue") +
+  scale_color_manual(values=c(rep("#00BCFF", (ncol(qxt)+1)))) +
+  geom_line(na.rm=TRUE, alpha=1, size=0.5) + theme_minimal() +
+  xlab("Ages") + ylab("Observed log mortality rates") + ggtitle("Dutch mortality rates 2009") +
+  theme(panel.grid.major.x=element_blank(), axis.line = element_line(colour = "black", size =0.5), legend.position="none", axis.title.x=element_text(family="sans",size=rel(1)),
+        axis.title.y=element_text(family="sans",size=rel(1), angle=90), plot.title = element_text(family="sans", size=20, face="bold", vjust=2))+
+  #scale_y_continuous(breaks=seq(-12,-1, by=1), labels=function(x)format(x,nsmall=2,scientific=FALSE))+
+  scale_x_continuous(breaks=seq(0,90, by = 10))+
+  coord_cartesian(ylim = c(-10, -0.8)) 
+
+plot_q
+```
 
 $\hat{\mu}_{x}(t)$
 
 ## Predictor
 
-<center><img src="img/chart9.png" alt="Drawing" style="width: 700px;"/></center>
+```{r, echo=FALSE, warning=FALSE, message=FALSE, dev="CairoSVG"}
+## Plots
+plot_df    <- data.frame(ages=0:90, qxt[1:91,], average=rowMeans(qxt[1:91,], na.rm=F))
+ncols <- ncol(plot_df)
+plot_df <- melt(plot_df, id="ages")
+plot_q <- ggplot(plot_df, aes(x=ages, y=value, colour=variable)) +
+  #geom_ribbon(aes(ymin=qxt2,ymax=qxt60),fill="lightblue") +
+  scale_color_manual(values=c(rep("#00BCFF", (ncol(qxt))), "#220087")) +
+  scale_linetype_manual(values = c(rep(1,ncol(qxt)), 3)) +
+  #scale_color_manual(values=c("#220087")) +
+  geom_line(na.rm=TRUE, alpha=1, size=0.5, aes(linetype=variable)) + 
+  theme_minimal() +
+  xlab("Ages") + ylab("Observed log mortality rates") + ggtitle("Dutch mortality rates 2009") +
+  theme(panel.grid.major.x=element_blank(), axis.line = element_line(colour = "black", size =0.5), legend.position="none", axis.title.x=element_text(family="sans",size=rel(1)),
+        axis.title.y=element_text(family="sans",size=rel(1), angle=90), plot.title = element_text(family="sans", size=20, face="bold", vjust=2))+
+  #scale_y_continuous(breaks=seq(-12,-1, by=1), labels=function(x)format(x,nsmall=2,scientific=FALSE))+
+  scale_x_continuous(breaks=seq(0,90, by = 10))+
+  coord_cartesian(ylim = c(-10, -0.8)) 
+
+plot_q
+```
 
 $\hat{\mu}_{x}(t) = \alpha_{x}$
 
