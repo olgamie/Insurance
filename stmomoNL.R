@@ -31,26 +31,7 @@ qxt <- log(Dxt/E0xt)
 forecastTime <- 120
 ages.fit <- 45:90
 
-## Plots
-plot_df    <- data.frame(ages=0:90, qxt[1:91,])
-ncols <- ncol(plot_df)
-plot_df <- melt(plot_df, id="ages")
-plot_q <- ggplot(plot_df, aes(x=ages, y=value, colour=variable)) +
-  #geom_ribbon(aes(ymin=qxt2,ymax=qxt60),fill="lightblue") +
-  scale_color_manual(values=c(rep("#00BCFF", ncols-2), "#220087")) +
-  geom_line(na.rm=TRUE, alpha=1, size=1) + theme_minimal() +
-  xlab("Ages") + ylab("Observed log mortality rates") + ggtitle("Dutch mortality rates") +
-  theme(panel.grid.major.x=element_blank(), axis.line = element_line(colour = "black", size =0.5), legend.position="none", axis.title.x=element_text(family="sans",size=rel(1)),
-        axis.title.y=element_text(family="sans",size=rel(1), angle=90), plot.title = element_text(family="sans", size=20, face="bold", vjust=2))+
-  #scale_y_continuous(breaks=seq(-12,-1, by=1), labels=function(x)format(x,nsmall=2,scientific=FALSE))+
-  scale_x_continuous(breaks=seq(0,90, by = 10))+
-  coord_cartesian(ylim = c(-10, -0.8)) 
-
-plot_q
-
-##
-
-persp3d(ages[0:90], years, qxt[0:90,], col="skyblue", shade=TRUE,xlab="Ages (0-100)",
+persp3d(ages[0:90], years, qxt[0:90,], col="skyblue", shade=TRUE,xlab="Ages (0-90)",
         ylab="Years",zlab="Mortality rate (log)")
 
 # Dxtm <- skDemo$rate$male * skDemo$pop$male
@@ -75,7 +56,7 @@ weights <- genWeightMat(ages.fit, years, 3)
 
 modelFit <- array(data = NA, c(7, 2))
 colnames(modelFit) <- c("AIC", "BIC")
-rownames(modelFit) <- c("LC", "CBD", "APC", "M6", "M7", "M8", "PLAT")
+rownames(modelFit) <- c("LC", "APC", "RH", "CBD", "M6", "M7", "M8", "PLAT")
 
 ## LC model under a Binomial setting - M1
 LC <- lc(link = "logit")
@@ -86,6 +67,8 @@ plot(LCfit, nCol = 3)
 
 ## get residual fit
 LCres <- residuals(LCfit)
+plot(LCres)
+plot(LCres, type = "colourmap", reslim = c(-3.5, 3.5))
 
 modelFit[1, 1] <- AIC(LCfit)
 modelFit[1, 2] <- BIC(LCfit)
@@ -105,12 +88,23 @@ modelFit[2, 2] <- BIC(APCfit)
 APCfor <- forecast(APCfit, h = forecastTime, gc.order = c(1, 1, 0))
 APCqxt <- cbind(APCfor$fitted, APCfor$rates)
 
+## RH
+RH <- rh("logit", cohortAgeFun = "1")
+RHfit <- fit(RH, Dxt = Dxt, Ext= E0xt, ages = ages, years = years, ages.fit = ages.fit, wxt = weights, start.ax = LCfit$ax,
+              start.bx = LCfit$bx, start.kt = LCfit$kx)
+
+modelFit[3, 1] <- AIC(RHfit)
+modelFit[3, 2] <- BIC(RHfit)
+
+RHfor <- forecast(RHfit, h = forecastTime, gc.order = c(1, 1, 0))
+RHqxt <- cbind(RHfor$fitted, RHfor$rates)
+
 ## CBD model Cairns (2009) under a Binomial distribution of deaths Haberman and Renshaw (2011) - M5
 CBD <- cbd()
 CBDfit <- fit(CBD, Dxt = Dxt, Ext= E0xt, ages = ages, years = years, ages.fit = ages.fit, wxt = weights)
 
-modelFit[3, 1] <- AIC(CBDfit)
-modelFit[3, 2] <- BIC(CBDfit)
+modelFit[4, 1] <- AIC(CBDfit)
+modelFit[4, 2] <- BIC(CBDfit)
 
 CBDfor <- forecast(CBDfit, h = forecastTime)
 CBDqxt <- cbind(CBDfor$fitted, CBDfor$rates)
@@ -118,8 +112,8 @@ CBDqxt <- cbind(CBDfor$fitted, CBDfor$rates)
 ## M6
 M6 <- m6()
 M6fit <- fit(M6, Dxt = Dxt, Ext= E0xt, ages = ages, years = years, ages.fit = ages.fit, wxt = weights)
-modelFit[4, 1] <- AIC(M6fit)
-modelFit[4, 2] <- BIC(M6fit)
+modelFit[5, 1] <- AIC(M6fit)
+modelFit[5, 2] <- BIC(M6fit)
 
 M6for <- forecast(M6fit, h = forecastTime, gc.order = c(2, 0, 0))
 M6qxt <- cbind(M6for$fitted, M6for$rates)
@@ -128,8 +122,11 @@ M6qxt <- cbind(M6for$fitted, M6for$rates)
 M7 <- m7(link = "logit")
 M7fit <- fit(M7, Dxt = Dxt, Ext= E0xt, ages = ages, years = years, ages.fit = ages.fit, wxt = weights)
 
-modelFit[5, 1] <- AIC(M7fit)
-modelFit[5, 2] <- BIC(M7fit)
+modelFit[6, 1] <- AIC(M7fit)
+modelFit[6, 2] <- BIC(M7fit)
+
+M7res <- residuals(M7fit)
+plot(M7res)
 
 M7for <- forecast(M7fit, h = forecastTime, gc.order = c(2, 0, 0))
 M7qxt <- cbind(M7for$fitted, M7for$rates)
@@ -137,8 +134,8 @@ M7qxt <- cbind(M7for$fitted, M7for$rates)
 ## M8
 M8 <- m8(link = "logit", xc = 65)
 M8fit <- fit(M8, Dxt = Dxt, Ext= E0xt, ages = ages, years = years, ages.fit = ages.fit, wxt = weights)
-modelFit[6, 1] <- AIC(M8fit)
-modelFit[6, 2] <- BIC(M8fit)
+modelFit[7, 1] <- AIC(M8fit)
+modelFit[7, 2] <- BIC(M8fit)
 
 M8for <- forecast(M8fit, h = forecastTime, gc.order = c(2, 0, 0))
 M8qxt <- cbind(M8for$fitted, M8for$rates)
@@ -171,14 +168,17 @@ PLAT <- StMoMo(link = "logit", staticAgeFun = TRUE,
                constFun = constPlat)
 PLATfit <- fit(PLAT, Dxt = Dxt, Ext= E0xt, ages = ages, years = years, ages.fit = ages.fit, wxt = weights)
 
-modelFit[7, 1] <- AIC(PLATfit)
-modelFit[7, 2] <- BIC(PLATfit)
+PLATres <- residuals(PLATfit)
+plot(PLATres)
+
+modelFit[8, 1] <- AIC(PLATfit)
+modelFit[8, 2] <- BIC(PLATfit)
 
 PLATfor <- forecast(PLATfit, h = forecastTime, gc.order = c(2, 0, 0))
 PLATqxt <- cbind(PLATfor$fitted, PLATfor$rates)
 
 ## Collect fitted models for simulation purposes
-modelsFitted <- list(LC = LCfit, APC = APCfit, 
+modelsFitted <- list(LC = LCfit, APC = APCfit,  RH = RHfit, 
                CBD = CBDfit,  M6 = M6fit, M7 = M7fit, M8 = M8fit, PLAT = PLATfit)
 
 ## Model fit criteria AIC and BIC
@@ -187,21 +187,18 @@ modelFit
 ## Ploting - inspection of forecasted mortality rates for 65 year old
 ## Plots
 years_chart <- c(years, (years[length(years)]+1):(years[length(years)]+forecastTime))
-plot_df <- data.frame(years = years_chart, LC = LCqxt["65",], CBD = CBDqxt["65",], APC = APCqxt["65",],
+plot_df <- data.frame(years = years_chart, LC = LCqxt["65",], CBD = CBDqxt["65",], APC = APCqxt["65",], RH = RHqxt["65",],
                       M6 = M6qxt["65",], M7 = M7qxt["65",], M8 = M8qxt["65",], PLAT = PLATqxt["65",])
 plot_df2 <- data.frame(years=years, Observed = (Dxt/E0xt)["65", ])
 ncols <- ncol(plot_df)
 plot_df <- melt(plot_df, id="years")
 plot_q <- ggplot(data=plot_df, aes(x=years, y=value, colour=variable)) +
   geom_line(na.rm=TRUE, alpha=1, size=1) + 
-  #scale_color_manual(values=rainbow(7)) +
-  geom_point(data=plot_df2, aes(x=years, y=Observed, colour="Observed"), group=1, pch=21, colour="black", size=2, fill="red") +
+  geom_point(data=plot_df2, aes(x=years, y=Observed, colour="Mortality projection"), group=1, pch=21, colour="black", size=3, fill="red") +
   theme_minimal() +
-  xlab("Years") + ylab("Mortality rates at age 65") + ggtitle("Dutch mortality rates") +
+  xlab("Years") + ylab("Mortality rates at age 65") + ggtitle("GAP ") +
   theme(panel.grid.major.x=element_blank(), axis.line = element_line(colour = "black", size =0.5), axis.title.x=element_text(family="sans",size=rel(1)),
         axis.title.y=element_text(family="sans",size=rel(1), angle=90), plot.title = element_text(family="sans", size=20, face="bold", vjust=2))+
-  #scale_y_continuous(breaks=seq(-12,-1, by=1), labels=function(x)format(x,nsmall=2,scientific=FALSE))+
-  #scale_x_continuous(breaks=seq(0,90, by = 10))+
   coord_cartesian(ylim = c(0, 0.023)) 
 
 plot_q
@@ -212,6 +209,9 @@ LCqxtExtr <- LCextrapolate$qxt
 
 APCextrapolate <- kannistoExtrapolation(APCqxt, ages.fit, years_chart)
 APCqxtExtr <- APCextrapolate$qxt
+
+RHextrapolate <- kannistoExtrapolation(RHqxt, ages.fit, years_chart)
+RHqxtExtr <- RHextrapolate$qxt
 
 CBDextrapolate <- kannistoExtrapolation(CBDqxt, ages.fit, years_chart)
 CBDqxtExtr <- CBDextrapolate$qxt
@@ -233,9 +233,9 @@ ag <- read.csv("ag-total.csv", row.names = 1)
 colnames(ag) <- as.character(2014:(2014+ncol(ag)-1))
 ag <- as.matrix(ag[46:121,], rownames.force=T)
 
-models <- list(LCqxtExtr = LCqxtExtr, APCqxtExtr = APCqxtExtr, 
-               CBDqxtExtr = CBDqxtExtr,  M6qxtExtr = M6qxtExtr, 
-               M7qxtExtr = M7qxtExtr, M8qxtExtr = M8qxtExtr, PLATqxtExtr = PLATqxtExtr, AG = ag)
+models <- list(LCqxtExtr = LCqxtExtr, APCqxtExtr = APCqxtExtr, RHqxtExtr = RHqxtExtr, 
+               CBDqxtExtr = CBDqxtExtr,  M6qxtExtr = M6qxtExtr, M7qxtExtr = M7qxtExtr,
+               M8qxtExtr = M8qxtExtr, PLATqxtExtr = PLATqxtExtr, AG = ag)
 
 ## Annuity projection
 ## Assumption annuity due deffered at 65
@@ -257,7 +257,7 @@ experience.factors$total <- (experience.factors$Male + experience.factors$Female
 expF <- experience.factors$total[ages.fit]
 
 BEL <- array(NA, c(8,1))
-rownames(BEL) <- c("LC", "APC", "CBD", "M6", "M7", "M8", "PLAT", "AG")
+rownames(BEL) <- c("LC", "APC", "RH", "CBD", "M6", "M7", "M8", "PLAT", "AG")
 colnames(BEL) <- "BEL"
 
 for (m in 1:length(models)){
@@ -272,7 +272,7 @@ for (m in 1:length(models)){
 
 
 ## Show BEL per model
-df = data.frame(models = factor(c("LC", "APC", "CBD", "M6", "M7", "M8", "PLAT", "AG"), levels=c("LC", "APC", "CBD", "M6", "M7", "M8", "PLAT", "AG")),
+df = data.frame(models = factor(c("LC", "APC", "RH", "CBD", "M6", "M7", "M8", "PLAT", "AG"), levels=c("LC", "APC", "RH", "CBD", "M6", "M7", "M8", "PLAT", "AG")),
                 BEL = BEL)
 
 ggplot(data=df, aes(x=models, y=BEL, fill=models)) +
@@ -294,7 +294,7 @@ selectBEL <- list()
 
 #modelSim <- sapply(modelsFitted, simulate, nsim = nsim, h = forecastTime)
 
-for (m in 1:(models2run-1)){
+for (m in 1:(models2run)){
   modelSim[[m]] <- simulate(modelsFitted[[m]], nsim = nsim, h = forecastTime)
   collectBEL <- array(NA, c(200,1))
   for (s in 1:nsim){
@@ -313,26 +313,26 @@ for (m in 1:(models2run-1)){
   selectBEL[[m]] <- quantile(collectBEL, probs = 0.995, type = 1)
 }
 
-SCR <- as.numeric(selectBEL) - BEL[1:7]
-colnames(SCR) <- "SCR"
+SCR <- as.numeric(selectBEL) - BEL[1:model2run]
+names(SCR) <- "SCR"
 
 ## Plot simulations for LC model
 qxt <- Dxt/E0xt
-plot(LCfit$years, qxt["65", ], xlim = c(1950, 2129), ylim = range(PLATqxt["65",]),
+plot(LCfit$years, qxt["65", ], xlim = c(1950, 2132), ylim = range(PLATqxt["65",]),
      xlab = "Years", ylab = "Mortality rates", main = "Mortality rates at age 65",
      pch = 20, log = "y", type = "l")
 matlines(modelSim[[1]]$years, modelSim[[1]]$rates["65", , 1:20], type = "l", lty = 1, col = 1:20)
 
 ## Plot model uncertainity
 probs <- c(0.5, 2.5, 10, 25, 75, 90, 97.5, 99.5)
-plot(LCfit$years, qxt["65", ], xlim = c(1950, 2129), ylim = c(0.0025, 0.04),
+plot(LCfit$years, qxt["65", ], xlim = c(1950, 2132), ylim = c(0.0025, 0.04),
      xlab = "Years", ylab = "Mortality rates at age 65", main = "Uncertainity associated with a model forecast",
      pch = 20, log = "y")
-fan(t(modelSim[[1]]$rates["65", , ]), start = 2010, probs = probs, n.fan = 4,
+fan(t(modelSim[[1]]$rates["65", , ]), start = 2012, probs = probs, n.fan = 4,
     fan.col = colorRampPalette(c("yellow", "darkgreen")), ln = NULL)
 
 ## Show BEL per model
-df = data.frame(models = factor(c("LC", "APC", "CBD", "M6", "M7", "M8", "PLAT"), levels=c("LC", "APC", "CBD", "M6", "M7", "M8", "PLAT")), BEL = BEL[1:7], SCR = SCR[1:7])
+df = data.frame(models = factor(c("LC", "APC", "RH", "CBD", "M6", "M7", "M8", "PLAT"), levels=c("LC", "APC", "RH", "CBD", "M6", "M7", "M8", "PLAT")), BEL = BEL[1:7], SCR = SCR[1:7])
 plot_df <- melt(df, id="models")
 
 ggplot(data=plot_df, aes(x=models, y=value, fill=variable)) +
