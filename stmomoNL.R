@@ -5,15 +5,14 @@
 library(demography)
 library(StMoMo)
 library(rgl)
-library(googleVis)
 library(fanplot)
-library(gdata)
 library(ggplot2)
 library(gridExtra)
 library(reshape2)
+library(insureR)
 
 ## Source functions
-source("temp_functions.R")
+# source("temp_functions.R")
 source("credentials.R")
 
 skDemo<-hmd.mx("NLD", username=username, password=password)

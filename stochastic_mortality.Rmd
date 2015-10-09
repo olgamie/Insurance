@@ -899,9 +899,27 @@ setwd('<directory name>') # wrapped in ''
 
 ```{r, eval=FALSE}
 install.packages(c("demography","StMoMo","rgl",
-                   "googleVis","fanplot", "gdata"))
+                   "fanplot", "ggplot2", "gridExtra", "reshape2"))
 ```
 
 ## Case Study {.small}
 
 Dutch mortality data from Human Mortality Database
+
+Look at mortality models: LC, APC, CBD, RH, M6-M8, PLAT
+
+BEL and SCR Projection for a portfolio
+
+Open script stmomoNL.R
+
+## References {.smaller}
+
+["StMoMO: An R Package for Stochastic Mortality Modelling"](https://cran.r-project.org/web/packages/StMoMo/vignettes/StMoMoVignette.pdf) A.M. Villegas et al.
+
+["Stochastic Modelling of Mortality Risks"](http://dare.uva.nl/cgi/arno/show.cgi?fid=22881) Frankie Gregorkiewicz
+
+["Solvency II Glossary"](http://ec.europa.eu/internal_market/insurance/docs/solvency/impactassess/annex-c08d_en.pdf) CEA and the Groupe Consultatif
+
+["R: The most powerful and most widely used statistical software"](https://www.youtube.com/watch?v=TR2bHSJ_eck&feature=youtu.be) Revolution Analytics
+
+
