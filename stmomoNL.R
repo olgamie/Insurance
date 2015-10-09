@@ -31,8 +31,7 @@ qxt <- log(Dxt/E0xt)
 forecastTime <- 120
 ages.fit <- 45:90
 
-persp3d(ages[0:90], years, qxt[0:90,], col="skyblue", shade=TRUE,xlab="Ages (0-90)",
-        ylab="Years",zlab="Mortality rate (log)")
+persp3d(ages[0:90], years, qxt[0:90,], col="green", shade=TRUE,xlab="Ages (0-90)", ylab="Years",zlab="Mortality rate (log)")
 
 # Dxtm <- skDemo$rate$male * skDemo$pop$male
 # E0xtm <- skDemo$pop$male + 0.5 * Dxtm
@@ -51,12 +50,12 @@ persp3d(ages[0:90], years, qxt[0:90,], col="skyblue", shade=TRUE,xlab="Ages (0-9
 #         ylab="Years",zlab="Mortality rate (log)")
 
 weights <- genWeightMat(ages.fit, years, 3)
-
+  
 ## Modelling
-
-modelFit <- array(data = NA, c(7, 2))
+modelFit <- array(data = NA, c(8, 2))
 colnames(modelFit) <- c("AIC", "BIC")
-rownames(modelFit) <- c("LC", "APC", "RH", "CBD", "M6", "M7", "M8", "PLAT")
+modelNames <- c("LC", "APC", "RH", "CBD", "M6", "M7", "M8", "PLAT")
+rownames(modelFit) <- modelNames 
 
 ## LC model under a Binomial setting - M1
 LC <- lc(link = "logit")
@@ -85,6 +84,10 @@ APCfit <- fit(APC, Dxt = Dxt, Ext= E0xt, ages = ages, years = years, ages.fit = 
 modelFit[2, 1] <- AIC(APCfit)
 modelFit[2, 2] <- BIC(APCfit)
 
+APCres <- residuals(APCfit)
+plot(APCres)
+plot(APCres, type = "colourmap", reslim = c(-3.5, 3.5))
+
 APCfor <- forecast(APCfit, h = forecastTime, gc.order = c(1, 1, 0))
 APCqxt <- cbind(APCfor$fitted, APCfor$rates)
 
@@ -96,6 +99,10 @@ RHfit <- fit(RH, Dxt = Dxt, Ext= E0xt, ages = ages, years = years, ages.fit = ag
 modelFit[3, 1] <- AIC(RHfit)
 modelFit[3, 2] <- BIC(RHfit)
 
+RHres <- residuals(RHfit)
+plot(RHres)
+plot(RHres, type = "colourmap", reslim = c(-3.5, 3.5))
+
 RHfor <- forecast(RHfit, h = forecastTime, gc.order = c(1, 1, 0))
 RHqxt <- cbind(RHfor$fitted, RHfor$rates)
 
@@ -106,6 +113,10 @@ CBDfit <- fit(CBD, Dxt = Dxt, Ext= E0xt, ages = ages, years = years, ages.fit = 
 modelFit[4, 1] <- AIC(CBDfit)
 modelFit[4, 2] <- BIC(CBDfit)
 
+CBDres <- residuals(CBDfit)
+plot(CBDres)
+plot(CBDres, type = "colourmap", reslim = c(-3.5, 3.5))
+
 CBDfor <- forecast(CBDfit, h = forecastTime)
 CBDqxt <- cbind(CBDfor$fitted, CBDfor$rates)
 
@@ -114,6 +125,10 @@ M6 <- m6()
 M6fit <- fit(M6, Dxt = Dxt, Ext= E0xt, ages = ages, years = years, ages.fit = ages.fit, wxt = weights)
 modelFit[5, 1] <- AIC(M6fit)
 modelFit[5, 2] <- BIC(M6fit)
+
+M6res <- residuals(M6fit)
+plot(M6res)
+plot(M6res, type = "colourmap", reslim = c(-3.5, 3.5))
 
 M6for <- forecast(M6fit, h = forecastTime, gc.order = c(2, 0, 0))
 M6qxt <- cbind(M6for$fitted, M6for$rates)
@@ -127,6 +142,7 @@ modelFit[6, 2] <- BIC(M7fit)
 
 M7res <- residuals(M7fit)
 plot(M7res)
+plot(M7res, type = "colourmap", reslim = c(-3.5, 3.5))
 
 M7for <- forecast(M7fit, h = forecastTime, gc.order = c(2, 0, 0))
 M7qxt <- cbind(M7for$fitted, M7for$rates)
@@ -136,6 +152,10 @@ M8 <- m8(link = "logit", xc = 65)
 M8fit <- fit(M8, Dxt = Dxt, Ext= E0xt, ages = ages, years = years, ages.fit = ages.fit, wxt = weights)
 modelFit[7, 1] <- AIC(M8fit)
 modelFit[7, 2] <- BIC(M8fit)
+
+M8res <- residuals(M8fit)
+plot(M8res)
+plot(M8res, type = "colourmap", reslim = c(-3.5, 3.5))
 
 M8for <- forecast(M8fit, h = forecastTime, gc.order = c(2, 0, 0))
 M8qxt <- cbind(M8for$fitted, M8for$rates)
@@ -168,11 +188,12 @@ PLAT <- StMoMo(link = "logit", staticAgeFun = TRUE,
                constFun = constPlat)
 PLATfit <- fit(PLAT, Dxt = Dxt, Ext= E0xt, ages = ages, years = years, ages.fit = ages.fit, wxt = weights)
 
-PLATres <- residuals(PLATfit)
-plot(PLATres)
-
 modelFit[8, 1] <- AIC(PLATfit)
 modelFit[8, 2] <- BIC(PLATfit)
+
+PLATres <- residuals(PLATfit)
+plot(PLATres)
+plot(PLATres, type = "colourmap", reslim = c(-3.5, 3.5))
 
 PLATfor <- forecast(PLATfit, h = forecastTime, gc.order = c(2, 0, 0))
 PLATqxt <- cbind(PLATfor$fitted, PLATfor$rates)
@@ -194,9 +215,9 @@ ncols <- ncol(plot_df)
 plot_df <- melt(plot_df, id="years")
 plot_q <- ggplot(data=plot_df, aes(x=years, y=value, colour=variable)) +
   geom_line(na.rm=TRUE, alpha=1, size=1) + 
-  geom_point(data=plot_df2, aes(x=years, y=Observed, colour="Mortality projection"), group=1, pch=21, colour="black", size=3, fill="red") +
+  geom_point(data=plot_df2, aes(x=years, y=Observed), group=1, pch=21, colour="black", size=3, fill="red") +
   theme_minimal() +
-  xlab("Years") + ylab("Mortality rates at age 65") + ggtitle("GAP ") +
+  xlab("Years") + ylab("Mortality rates at age 65") + ggtitle("Mortality projection") +
   theme(panel.grid.major.x=element_blank(), axis.line = element_line(colour = "black", size =0.5), axis.title.x=element_text(family="sans",size=rel(1)),
         axis.title.y=element_text(family="sans",size=rel(1), angle=90), plot.title = element_text(family="sans", size=20, face="bold", vjust=2))+
   coord_cartesian(ylim = c(0, 0.023)) 
@@ -256,7 +277,7 @@ experience.factors$total <- (experience.factors$Male + experience.factors$Female
 
 expF <- experience.factors$total[ages.fit]
 
-BEL <- array(NA, c(8,1))
+BEL <- array(NA, c(9,1))
 rownames(BEL) <- c("LC", "APC", "RH", "CBD", "M6", "M7", "M8", "PLAT", "AG")
 colnames(BEL) <- "BEL"
 
@@ -269,7 +290,6 @@ for (m in 1:length(models)){
   }
   BEL[m, 1] <- do.call(sum, output)-do.call(sum, output2)
 }
-
 
 ## Show BEL per model
 df = data.frame(models = factor(c("LC", "APC", "RH", "CBD", "M6", "M7", "M8", "PLAT", "AG"), levels=c("LC", "APC", "RH", "CBD", "M6", "M7", "M8", "PLAT", "AG")),
@@ -313,7 +333,7 @@ for (m in 1:(models2run)){
   selectBEL[[m]] <- quantile(collectBEL, probs = 0.995, type = 1)
 }
 
-SCR <- as.numeric(selectBEL) - BEL[1:model2run]
+SCR <- as.numeric(selectBEL) - BEL[1:models2run]
 names(SCR) <- "SCR"
 
 ## Plot simulations for LC model
@@ -332,11 +352,11 @@ fan(t(modelSim[[1]]$rates["65", , ]), start = 2012, probs = probs, n.fan = 4,
     fan.col = colorRampPalette(c("yellow", "darkgreen")), ln = NULL)
 
 ## Show BEL per model
-df = data.frame(models = factor(c("LC", "APC", "RH", "CBD", "M6", "M7", "M8", "PLAT"), levels=c("LC", "APC", "RH", "CBD", "M6", "M7", "M8", "PLAT")), BEL = BEL[1:7], SCR = SCR[1:7])
+df = data.frame(models = factor(c("LC", "APC", "RH", "CBD", "M6", "M7", "M8", "PLAT"), levels=c("LC", "APC", "RH", "CBD", "M6", "M7", "M8", "PLAT")), BEL = BEL[1:8], SCR = SCR[1:8])
 plot_df <- melt(df, id="models")
 
 ggplot(data=plot_df, aes(x=models, y=value, fill=variable)) +
   geom_bar(stat="identity") + theme_minimal() +
   xlab("Models") + ylab("Amount in EUR") + ggtitle("BEL and SCR for a portfolio") +
-  theme(panel.grid.major.x=element_blank(), axis.line = element_line(colour = "black", size =0.5), axis.title.x=element_text(family="sans",size=rel(1)),
+  theme(panel.grid.major.x=element_blank(), axis.line = element_line(colour = "black", size =0.2), axis.title.x=element_text(family="sans",size=rel(1)),
         axis.title.y=element_text(family="sans",size=rel(1), angle=90), plot.title = element_text(family="sans", size=20, face="bold", vjust=2))
