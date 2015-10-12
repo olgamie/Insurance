@@ -912,6 +912,12 @@ BEL and SCR Projection for a portfolio
 
 Open script stmomoNL.R
 
+## Exercises
+
+* Shock in the portfolio: everybody 5 years younger
+* Mortality projection based on shorter historical data: 1989 instead 1950
+    * Excluse RH model
+
 ## References {.smaller}
 
 ["StMoMO: An R Package for Stochastic Mortality Modelling"](https://cran.r-project.org/web/packages/StMoMo/vignettes/StMoMoVignette.pdf) A.M. Villegas et al.

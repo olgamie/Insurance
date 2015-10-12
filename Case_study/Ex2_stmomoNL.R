@@ -22,43 +22,18 @@ library(insureR)
 
 # skDemo<-hmd.mx("NLD", username=username, password=password)
 load("Case_study/nlDemo.RData")
-years <- 1950:2012
+years <- 1## adjust the years
 ages<- skDemo$age
 Dxt <- skDemo$rate[[3]] * skDemo$pop[[3]]
 E0xt <- skDemo$pop[[3]] + 0.5 * Dxt
 Ecxt <- skDemo$pop[[3]]
-Dxt <- Dxt[,as.character(1950:2012)]
-E0xt <- E0xt[,as.character(1950:2012)]
+Dxt <- ## adjust Dxt
+E0xt <-## adjust E0xt
 qxt <- log(Dxt/E0xt)
 
 ## get data
 forecastTime <- 120
 ages.fit <- 45:90
-
-## Total polulation 3d plot
-persp3d(ages[0:90], years, qxt[0:90,], col="green", shade=TRUE,xlab="Ages (0-90)", ylab="Years",zlab="Mortality rate (log)")
-
-## Male 3d plot
-Dxtm <- skDemo$rate$male * skDemo$pop$male
-E0xtm <- skDemo$pop$male + 0.5 * Dxtm
-Dxtm  <- Dxtm[,as.character(1950:2012)]
-E0xtm <- E0xtm[,as.character(1950:2012)]
-qxtm <- log(Dxtm/E0xtm)
-
-persp3d(ages[0:90], years, qxtm[0:90,], col="skyblue", shade=TRUE,xlab="Ages (0-90)",
-        ylab="Years",zlab="Mortality rate (log)")
-
-## Female 3d plot
-Dxtf <- skDemo$rate$female * skDemo$pop$female
-E0xtf <- skDemo$pop$female + 0.5 * Dxtf
-Dxtf  <- Dxtf[,as.character(1950:2012)]
-E0xtf <- E0xtf[,as.character(1950:2012)]
-qxtf <- log(Dxtf/E0xtf)
-
-persp3d(ages[0:90], years, qxtf[0:90,], col="pink", shade=TRUE,xlab="Ages (0-90)",
-        ylab="Years",zlab="Mortality rate (log)")
-
-## Setup weights for fitting
 weights <- genWeightMat(ages.fit, years, 3)
   
 ## Modelling
@@ -209,7 +184,7 @@ PLATfor <- forecast(PLATfit, h = forecastTime, gc.order = c(2, 0, 0))
 PLATqxt <- cbind(PLATfor$fitted, PLATfor$rates)
 
 ## Collect fitted models for simulation purposes
-modelsFitted <- list(LC = LCfit, APC = APCfit,  RH = RHfit, 
+modelsFitted <- list(LC = LCfit, APC = APCfit, 
                CBD = CBDfit,  M6 = M6fit, M7 = M7fit, M8 = M8fit, PLAT = PLATfit)
 
 ## Model fit criteria AIC and BIC
@@ -218,7 +193,7 @@ modelFit
 ## Ploting - inspection of forecasted mortality rates for 65 year old
 ## Plots
 years_chart <- c(years, (years[length(years)]+1):(years[length(years)]+forecastTime))
-plot_df <- data.frame(years = years_chart, LC = LCqxt["65",], CBD = CBDqxt["65",], APC = APCqxt["65",], RH = RHqxt["65",],
+plot_df <- data.frame(years = years_chart, LC = LCqxt["65",], CBD = CBDqxt["65",], APC = APCqxt["65",],
                       M6 = M6qxt["65",], M7 = M7qxt["65",], M8 = M8qxt["65",], PLAT = PLATqxt["65",])
 plot_df2 <- data.frame(years=years, Observed = (Dxt/E0xt)["65", ])
 ncols <- ncol(plot_df)
@@ -241,9 +216,6 @@ LCqxtExtr <- LCextrapolate$qxt
 APCextrapolate <- kannistoExtrapolation(APCqxt, ages.fit, years_chart)
 APCqxtExtr <- APCextrapolate$qxt
 
-RHextrapolate <- kannistoExtrapolation(RHqxt, ages.fit, years_chart)
-RHqxtExtr <- RHextrapolate$qxt
-
 CBDextrapolate <- kannistoExtrapolation(CBDqxt, ages.fit, years_chart)
 CBDqxtExtr <- CBDextrapolate$qxt
 
@@ -264,7 +236,7 @@ ag <- read.csv("Case_study/ag-total.csv", row.names = 1)
 colnames(ag) <- as.character(2014:(2014+ncol(ag)-1))
 ag <- as.matrix(ag[46:121,], rownames.force=T)
 
-models <- list(LCqxtExtr = LCqxtExtr, APCqxtExtr = APCqxtExtr, RHqxtExtr = RHqxtExtr, 
+models <- list(LCqxtExtr = LCqxtExtr, APCqxtExtr = APCqxtExtr, 
                CBDqxtExtr = CBDqxtExtr,  M6qxtExtr = M6qxtExtr, M7qxtExtr = M7qxtExtr,
                M8qxtExtr = M8qxtExtr, PLATqxtExtr = PLATqxtExtr, AG = ag)
 
@@ -287,9 +259,9 @@ experience.factors$total <- (experience.factors$Male + experience.factors$Female
 
 expF <- experience.factors$total[ages.fit]
 
-BEL <- array(NA, c(9,1))
-rownames(BEL) <- c("LC", "APC", "RH", "CBD", "M6", "M7", "M8", "PLAT", "AG")
-colnames(BEL) <- "BEL"
+BEL_ex2 <- array(NA, c(8,1))
+rownames(BEL_ex2) <- c("LC", "APC", "CBD", "M6", "M7", "M8", "PLAT", "AG")
+colnames(BEL_ex2) <- "BEL"
 
 for (m in 1:length(models)){
   output <- list()
@@ -300,12 +272,12 @@ for (m in 1:length(models)){
     output2[[i]] <- PVcashflow(models[[m]]*expF, ageStart = portfolio$age[i], omegaAge = 120, pensionAge = 65, 
                                valyear = valyear, ir = 0.02, type = "premium")*portfolio$Premium[i]
   }
-  BEL[m, 1] <- do.call(sum, output)-do.call(sum, output2)
+  BEL_ex2[m, 1] <- do.call(sum, output)-do.call(sum, output2)
 }
 
 ## Show BEL per model
-df = data.frame(models = factor(c("LC", "APC", "RH", "CBD", "M6", "M7", "M8", "PLAT", "AG"), levels=c("LC", "APC", "RH", "CBD", "M6", "M7", "M8", "PLAT", "AG")),
-                BEL = BEL)
+df = data.frame(models = factor(c("LC", "APC", "CBD", "M6", "M7", "M8", "PLAT", "AG"), levels=c("LC", "APC", "RH", "CBD", "M6", "M7", "M8", "PLAT", "AG")),
+                BEL = BEL_ex2)
 
 ggplot(data=df, aes(x=models, y=BEL, fill=models)) +
   geom_bar(stat="identity") + theme_minimal() +
@@ -313,62 +285,4 @@ ggplot(data=df, aes(x=models, y=BEL, fill=models)) +
   theme(panel.grid.major.x=element_blank(), axis.line = element_line(colour = "black", size =0.5), legend.position="none", axis.title.x=element_text(family="sans",size=rel(1)),
         axis.title.y=element_text(family="sans",size=rel(1), angle=90), plot.title = element_text(family="sans", size=20, face="bold", vjust=2))
 
-## SIMULATIONS for SCR calculation purposes
-set.seed(1234)
-
-# number of simulations
-nsim <- 200
-models2run <- length(modelsFitted)
-ages.fit <- 45:90
-
-modelSim <- list()
-selectBEL <- list()
-
-#modelSim <- sapply(modelsFitted, simulate, nsim = nsim, h = forecastTime)
-
-for (m in 1:(models2run)){
-  modelSim[[m]] <- simulate(modelsFitted[[m]], nsim = nsim, h = forecastTime)
-  collectBEL <- array(NA, c(200,1))
-  for (s in 1:nsim){
-    prem_s <- 0
-    ben_s <- 0
-    qx <- cbind(modelSim[[m]]$fitted[, , s], modelSim[[m]]$rates[, , s])
-    extrapolate <- kannistoExtrapolation(qx, ages.fit, years_chart)
-    for (i in 1:nrow(portfolio)){
-      ben_s <- ben_s + PVcashflow(extrapolate$qxt*expF, ageStart = portfolio$age[i], omegaAge = 120, 
-                                  pensionAge = 65, valyear = valyear, ir = 0.02, type = "annuity")*pension
-      prem_s <- prem_s + PVcashflow(extrapolate$qxt*expF, ageStart = portfolio$age[i], omegaAge = 120, 
-                                    pensionAge = 65, valyear = valyear, ir = 0.02, type = "premium")*portfolio$Premium[i]
-    }
-    collectBEL[s, 1] <- ben_s - prem_s
-  }
-  selectBEL[[m]] <- quantile(collectBEL, probs = 0.995, type = 1)
-}
-
-SCR <- as.numeric(selectBEL) - BEL[1:models2run]
-names(SCR) <- "SCR"
-
-## Plot simulations for LC model
-qxt <- Dxt/E0xt
-plot(LCfit$years, qxt["65", ], xlim = c(1950, 2132), ylim = range(PLATqxt["65",]),
-     xlab = "Years", ylab = "Mortality rates", main = "Mortality rates at age 65",
-     pch = 20, log = "y", type = "l")
-matlines(modelSim[[1]]$years, modelSim[[1]]$rates["65", , 1:20], type = "l", lty = 1, col = 1:20)
-
-## Plot model uncertainity
-probs <- c(0.5, 2.5, 10, 25, 75, 90, 97.5, 99.5)
-plot(LCfit$years, qxt["65", ], xlim = c(1950, 2132), ylim = c(0.0025, 0.04),
-     xlab = "Years", ylab = "Mortality rates at age 65", main = "Uncertainity associated with a model forecast",
-     pch = 20, log = "y")
-fan(t(modelSim[[1]]$rates["65", , ]), start = 2012, probs = probs, n.fan = 4,
-    fan.col = colorRampPalette(c("yellow", "darkgreen")), ln = NULL)
-
-## Show BEL and SCR per model
-df = data.frame(models = factor(c("LC", "APC", "RH", "CBD", "M6", "M7", "M8", "PLAT"), levels=c("LC", "APC", "RH", "CBD", "M6", "M7", "M8", "PLAT")), BEL = BEL[1:8], SCR = SCR[1:8])
-plot_df <- melt(df, id="models")
-
-ggplot(data=plot_df, aes(x=models, y=value, fill=variable)) +
-  geom_bar(stat="identity") + theme_minimal() +
-  xlab("Models") + ylab("Amount in EUR") + ggtitle("BEL and SCR for a portfolio") +
-  theme(panel.grid.major.x=element_blank(), axis.line = element_line(colour = "black", size =0.2), axis.title.x=element_text(family="sans",size=rel(1)),
-        axis.title.y=element_text(family="sans",size=rel(1), angle=90), plot.title = element_text(family="sans", size=20, face="bold", vjust=2))
+## Compare the results with the base case
