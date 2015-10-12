@@ -1,5 +1,10 @@
 ## Install packages for the tutorial
-#install.packages(c("demography","StMoMo","rgl","googleVis","fanplot", "gdata"))
+#install.packages(c("demography","StMoMo","rgl","fanplot", "ggplo2", "gridExtra", "reshape2"))
+
+## Install own package from GitHub
+
+# library(devtools)
+# devtools::install_github("TARF/insureR")
 
 ## Load required libraries
 library(demography)
@@ -15,10 +20,9 @@ library(insureR)
 
 ## Source functions
 # source("temp_functions.R")
-source("credentials.R")
 
-skDemo<-hmd.mx("NLD", username=username, password=password)
-# load("skDemo.RData")
+# skDemo<-hmd.mx("NLD", username=username, password=password)
+load("Case_study/nlDemo.RData")
 years <- 1950:2012
 ages<- skDemo$age
 Dxt <- skDemo$rate[[3]] * skDemo$pop[[3]]
@@ -28,28 +32,34 @@ Dxt <- Dxt[,as.character(1950:2012)]
 E0xt <- E0xt[,as.character(1950:2012)]
 qxt <- log(Dxt/E0xt)
 
-# get data
+## get data
 forecastTime <- 120
 ages.fit <- 45:90
 
+## Total polulation 3d plot
 persp3d(ages[0:90], years, qxt[0:90,], col="green", shade=TRUE,xlab="Ages (0-90)", ylab="Years",zlab="Mortality rate (log)")
 
-# Dxtm <- skDemo$rate$male * skDemo$pop$male
-# E0xtm <- skDemo$pop$male + 0.5 * Dxtm
-# qxtm <- log(Dxtm/E0xtm)
-# 
-# persp3d(ages[0:90], years, qxtm[0:90,], col="skyblue", shade=TRUE,xlab="Ages (0-90)",
-#         ylab="Years",zlab="Mortality rate (log)")
-# 
-# Dxtf <- skDemo$rate$female * skDemo$pop$female
-# #Dxtf<- pmax(Dxtf, .Machine$double.xmin)
-# Dxtf[13,"2006"] <- mean(Dxtf[13,"2005"], Dxtf[13,"2007"])
-# E0xtf <- skDemo$pop$female + 0.5 * Dxtf
-# qxtf <- log(Dxtf/E0xtf)
-# 
-# persp3d(ages[0:90], years, qxtf[0:90,], col="skyblue", shade=TRUE,xlab="Ages (0-90)",
-#         ylab="Years",zlab="Mortality rate (log)")
+## Male 3d plot
+Dxtm <- skDemo$rate$male * skDemo$pop$male
+E0xtm <- skDemo$pop$male + 0.5 * Dxtm
+Dxtm  <- Dxtm[,as.character(1950:2012)]
+E0xtm <- E0xtm[,as.character(1950:2012)]
+qxtm <- log(Dxtm/E0xtm)
 
+persp3d(ages[0:90], years, qxtm[0:90,], col="skyblue", shade=TRUE,xlab="Ages (0-90)",
+        ylab="Years",zlab="Mortality rate (log)")
+
+## Female 3d plot
+Dxtf <- skDemo$rate$female * skDemo$pop$female
+E0xtf <- skDemo$pop$female + 0.5 * Dxtf
+Dxtf  <- Dxtf[,as.character(1950:2012)]
+E0xtf <- E0xtf[,as.character(1950:2012)]
+qxtf <- log(Dxtf/E0xtf)
+
+persp3d(ages[0:90], years, qxtf[0:90,], col="pink", shade=TRUE,xlab="Ages (0-90)",
+        ylab="Years",zlab="Mortality rate (log)")
+
+## Setup weights for fitting
 weights <- genWeightMat(ages.fit, years, 3)
   
 ## Modelling
