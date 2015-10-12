@@ -9,6 +9,8 @@ library(fanplot)
 library(ggplot2)
 library(gridExtra)
 library(reshape2)
+
+# Own package
 library(insureR)
 
 ## Source functions
@@ -284,8 +286,8 @@ for (m in 1:length(models)){
   output <- list()
   output2 <- list()
   for (i in 1:nrow(portfolio)){
-    output[[i]] <- DFcashflow(models[[m]]*expF, ageStart = portfolio$age[i], omegaAge = 120, pensionAge = 65, valyear = valyear, ir = 0.02, type = 1)*pension
-    output2[[i]] <- DFcashflow(models[[m]]*expF, ageStart = portfolio$age[i], omegaAge = 120, pensionAge = 65, valyear = valyear, ir = 0.02, type = 2)*portfolio$Premium[i]
+    output[[i]] <- PVcashflow(models[[m]]*expF, ageStart = portfolio$age[i], omegaAge = 120, pensionAge = 65, valyear = valyear, ir = 0.02, type = 1)*pension
+    output2[[i]] <- PVcashflow(models[[m]]*expF, ageStart = portfolio$age[i], omegaAge = 120, pensionAge = 65, valyear = valyear, ir = 0.02, type = 2)*portfolio$Premium[i]
   }
   BEL[m, 1] <- do.call(sum, output)-do.call(sum, output2)
 }
