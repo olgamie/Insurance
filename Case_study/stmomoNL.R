@@ -1,8 +1,7 @@
 ## Install packages for the tutorial
 #install.packages(c("demography","StMoMo","rgl","fanplot", "ggplo2", "gridExtra", "reshape2"))
 
-## Install own package from GitHub
-
+## Install own package from Triple A repository on GitHub
 # library(devtools)
 # devtools::install_github("TARF/insureR")
 
@@ -362,7 +361,7 @@ plot(LCfit$years, qxt["65", ], xlim = c(1950, 2132), ylim = c(0.0025, 0.04),
 fan(t(modelSim[[1]]$rates["65", , ]), start = 2012, probs = probs, n.fan = 4,
     fan.col = colorRampPalette(c("yellow", "darkgreen")), ln = NULL)
 
-## Show BEL per model
+## Show BEL and SCR per model
 df = data.frame(models = factor(c("LC", "APC", "RH", "CBD", "M6", "M7", "M8", "PLAT"), levels=c("LC", "APC", "RH", "CBD", "M6", "M7", "M8", "PLAT")), BEL = BEL[1:8], SCR = SCR[1:8])
 plot_df <- melt(df, id="models")
 
