@@ -204,11 +204,8 @@ library(ggplot2)
 library(gridExtra)
 library(reshape2)
 
-## Source functions
-source("credentials.R")
-
 #skDemo<-hmd.mx("NLD", username=username, password=password)
-load("skDemo.RData")
+load("Case_study/nlDemo.RData")
 years <- 1950:2012
 ages<- skDemo$age
 Dxt <- skDemo$rate[[3]] * skDemo$pop[[3]]
@@ -231,7 +228,7 @@ plot_df <- melt(plot_df, id="ages")
 plot_q <- ggplot(plot_df, aes(x=ages, y=value, colour=variable)) +
   scale_color_manual(values=c("#FF0051")) +
   geom_line(na.rm=TRUE, alpha=1, size=0.8) + theme_minimal() +
-  xlab("Ages") + ylab("Observed log mortality rates") + ggtitle("Dutch mortality rates 2013") +
+  xlab("Ages") + ylab("Observed log mortality rates") + ggtitle("Dutch mortality rates 2012") +
   theme(panel.grid.major.x=element_blank(), axis.line = element_line(colour = "black", size =0.2), legend.position="none",
         axis.title.x=element_text(family="sans",size=rel(1)),
         axis.title.y=element_text(family="sans",size=rel(1), angle=90), plot.title = element_text(family="sans", size=20, face="bold", vjust=2))+
@@ -252,7 +249,7 @@ plot_q <- ggplot(plot_df, aes(x=ages, y=value, colour=variable)) +
   scale_color_manual(values=c("#FF0051")) +
   annotate("text", x=20, y=-6, label= "Very high mortality just after birth", size = 3.5) + 
   geom_line(na.rm=TRUE, alpha=1, size=0.8) + theme_minimal() +
-  xlab("Ages") + ylab("Observed log mortality rates") + ggtitle("Dutch mortality rates 2013") +
+  xlab("Ages") + ylab("Observed log mortality rates") + ggtitle("Dutch mortality rates 2012") +
   theme(panel.grid.major.x=element_blank(), axis.line = element_line(colour = "black", size =0.2), legend.position="none",
         axis.title.x=element_text(family="sans",size=rel(1)),
         axis.title.y=element_text(family="sans",size=rel(1), angle=90), plot.title = element_text(family="sans", size=20, face="bold", vjust=2))+
@@ -272,7 +269,7 @@ plot_q <- ggplot(plot_df, aes(x=ages, y=value, colour=variable)) +
   scale_color_manual(values=c("#FF0051")) +
   annotate("text", x=23, y=-7, label= "Accident hump", size = 3.5) + 
   geom_line(na.rm=TRUE, alpha=1, size=0.8) + theme_minimal() +
-  xlab("Ages") + ylab("Observed log mortality rates") + ggtitle("Dutch mortality rates") +
+  xlab("Ages") + ylab("Observed log mortality rates") + ggtitle("Dutch mortality rates 2012") +
   theme(panel.grid.major.x=element_blank(), axis.line = element_line(colour = "black", size =0.2), legend.position="none",
         axis.title.x=element_text(family="sans",size=rel(1)),
         axis.title.y=element_text(family="sans",size=rel(1), angle=90), plot.title = element_text(family="sans", size=20, face="bold", vjust=2))+
@@ -292,7 +289,7 @@ plot_q <- ggplot(plot_df, aes(x=ages, y=value, colour=variable)) +
   scale_color_manual(values=c("#FF0051")) +
   annotate("text", x=60, y=-2, label= "Steep increase in mortality", size = 3.5) + 
   geom_line(na.rm=TRUE, alpha=1, size=0.8) + theme_minimal() +
-  xlab("Ages") + ylab("Observed log mortality rates") + ggtitle("Dutch mortality rates") +
+  xlab("Ages") + ylab("Observed log mortality rates") + ggtitle("Dutch mortality rates 2012") +
   theme(panel.grid.major.x=element_blank(), axis.line = element_line(colour = "black", size =0.2), legend.position="none",
         axis.title.x=element_text(family="sans",size=rel(1)),
         axis.title.y=element_text(family="sans",size=rel(1), angle=90), plot.title = element_text(family="sans", size=20, face="bold", vjust=2))+
@@ -679,7 +676,7 @@ plot_df <- melt(plot_df, id="ages")
 plot_q <- ggplot(plot_df, aes(x=ages, y=value, colour=variable)) +
   scale_color_manual(values=c(rep("#FF0051", (ncol(qxt)-1)), "#7F0028")) +
   geom_line(na.rm=TRUE, alpha=1, size=0.8) + theme_minimal() +
-  xlab("Ages") + ylab("Observed log mortality rates") + ggtitle("Dutch mortality rates 2013") +
+  xlab("Ages") + ylab("Observed log mortality rates") + ggtitle("Dutch mortality rates 2012") +
   theme(panel.grid.major.x=element_blank(), axis.line = element_line(colour = "black", size =0.2), legend.position="none",
         axis.title.x=element_text(family="sans",size=rel(1)),
         axis.title.y=element_text(family="sans",size=rel(1), angle=90), plot.title = element_text(family="sans", size=20, face="bold", vjust=2))+
@@ -699,7 +696,7 @@ plot_df <- melt(plot_df, id="ages")
 plot_qall <- ggplot(plot_df, aes(x=ages, y=value, colour=variable)) +
   scale_color_manual(values=c(rep("#FF0051", (ncol(qxt)+1)))) +
   geom_line(na.rm=TRUE, alpha=1, size=0.8) + theme_minimal() +
-  xlab("Ages") + ylab("Observed log mortality rates") + ggtitle("Dutch mortality rates 1950-2013") +
+  xlab("Ages") + ylab("Observed log mortality rates") + ggtitle("Dutch mortality rates 1950-2012") +
   theme(panel.grid.major.x=element_blank(), axis.line = element_line(colour = "black", size =0.2), legend.position="none",
         axis.title.x=element_text(family="sans",size=rel(1)),
         axis.title.y=element_text(family="sans",size=rel(1), angle=90), plot.title = element_text(family="sans", size=20, face="bold", vjust=2))+
@@ -723,7 +720,7 @@ plot_q <- ggplot(plot_df, aes(x=ages, y=value, colour=variable)) +
   scale_linetype_manual(values = c(rep(1,ncol(qxt)), 2)) +
   geom_line(na.rm=TRUE, alpha=1, size=0.8, aes(linetype=variable)) + 
   theme_minimal() +
-  xlab("Ages") + ylab("Observed log mortality rates") + ggtitle("Dutch mortality rates 1950-2013") +
+  xlab("Ages") + ylab("Observed log mortality rates") + ggtitle("Dutch mortality rates 1950-2012") +
   theme(panel.grid.major.x=element_blank(), axis.line = element_line(colour = "black", size =0.2), legend.position="none",
         axis.title.x=element_text(family="sans",size=rel(1)),
         axis.title.y=element_text(family="sans",size=rel(1), angle=90), plot.title = element_text(family="sans", size=20, face="bold", vjust=2))+
@@ -773,7 +770,7 @@ plot_q <- ggplot(plot_df, aes(x=ages, y=value, colour=variable)) +
   geom_line(na.rm=TRUE, alpha=1, aes(linetype=variable, size=variable)) +
   scale_size_manual(values = c(rep(0.8, ncol(qxt)), 0.8)) +
   theme_minimal() +
-  xlab("Ages") + ylab("Observed log mortality rates") + ggtitle("Dutch mortality rates 1950-2013") +
+  xlab("Ages") + ylab("Observed log mortality rates") + ggtitle("Dutch mortality rates 1950-2012") +
   theme(panel.grid.major.x=element_blank(), axis.line = element_line(colour = "black", size =0.2), legend.position="none",
         axis.title.x=element_text(family="sans",size=rel(1)),
         axis.title.y=element_text(family="sans",size=rel(1), angle=90), plot.title = element_text(family="sans", size=20, face="bold", vjust=2))+
@@ -799,7 +796,7 @@ plot_q <- ggplot(plot_df, aes(x=ages, y=value, colour=variable)) +
    geom_line(na.rm=TRUE, alpha=1, aes(linetype=variable, size=variable)) +
   scale_size_manual(values = c(rep(0.8, ncol(qxt)), 0.8)) +
   theme_minimal() +
-  xlab("Ages") + ylab("Observed log mortality rates") + ggtitle("Dutch mortality rates 1950-2013") +
+  xlab("Ages") + ylab("Observed log mortality rates") + ggtitle("Dutch mortality rates 1950-2012") +
   theme(panel.grid.major.x=element_blank(), axis.line = element_line(colour = "black", size =0.2), legend.position="none",
         axis.title.x=element_text(family="sans",size=rel(1)),
         axis.title.y=element_text(family="sans",size=rel(1), angle=90), plot.title = element_text(family="sans", size=20, face="bold", vjust=2))+
@@ -821,8 +818,15 @@ $\hat{\mu}_{x}(t) = \alpha_{x} + \sum^{N}_{i=1} \beta^{i}_{x} \kappa^{i}_{t} + \
 * Age-Period-Cohort (APC) 
 <center>$\hat{\mu_{xt}} = \alpha_{x} + \kappa^{(1)}_{t} +\gamma_{t-x}$</center>
 
-* Cairns-Blake_Dowd (CBD) 
+* Cairns-Blake Dowd (CBD) 
 <center>$\hat{\mu_{xt}} = \kappa^{(1)}_{t} + (x-\bar{x})\kappa^{(2)}_{t}$</center>
+
+* Renshaw and Haberman (RH) 
+<center>$\hat{\mu_{xt}} = \alpha_{x} + \beta^{(1)}_{x} \kappa^{(1)}_{t} + +\gamma_{t-x}$</center>
+
+## Models Predictor {.smaller}
+
+<b>Generalised Age-Period-Cohort Stochastic Mortality Models</b>
 
 * Quadratic CBD with cohort effects M6 
 <center>$\hat{\mu_{xt}} = \kappa^{(1)}_{t} + (x-\bar{x})\kappa^{(2)}_{t} +\gamma_{t-x}$</center>
@@ -838,7 +842,7 @@ $\hat{\mu}_{x}(t) = \alpha_{x} + \sum^{N}_{i=1} \beta^{i}_{x} \kappa^{i}_{t} + \
 
 ## Model Comparison
 
-<center><img src="img/model_comp.png" alt="Drawing" style="width: 800px;"/></center>
+<center><img src="img/heatmap.png" alt="Drawing" style="width: 800px;"/></center>
 
 ## Random Component
 
@@ -916,7 +920,7 @@ Open script stmomoNL.R
 
 * Shock in the portfolio: everybody 5 years younger
 * Mortality projection based on shorter historical data: 1989 instead 1950
-    * Excluse RH model
+    * Exclude RH model (problems with convergence)
 
 ## References {.smaller}
 
