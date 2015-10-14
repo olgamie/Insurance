@@ -18,7 +18,7 @@ library(reshape2)
 library(insureR)
 
 ## Source functions
-# source("temp_functions.R")
+#source("Case_study/temp_functions.R")
 
 # skDemo<-hmd.mx("NLD", username=username, password=password)
 load("Case_study/nlDemo.RData")
