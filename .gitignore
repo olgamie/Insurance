@@ -5,7 +5,6 @@ credentials.R
 mydeck
 stoch_mot_mode-figure
 .Rproj
-/img
 /stochastic_mortality_cache
 /stochastic_mortality_files
 *.Rproj
