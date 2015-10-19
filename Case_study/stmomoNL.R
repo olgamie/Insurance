@@ -1,6 +1,6 @@
 ## Install packages for the tutorial
 install.packages(c("demography","StMoMo","rgl","fanplot", 
-                   "ggplot2", "gridExtra", "reshape2"))
+                   "ggplot2", "gridExtra", "reshape2", "devtools"))
 
 ## Install own package from Triple A repository on GitHub
 library(devtools)
