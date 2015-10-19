@@ -2,7 +2,7 @@
 title: "R in Insurance"
 subtitle: "Use of Stochastic Mortality Models"
 author: "Olga Mierzwa & Frankie Gregorkiewicz - Triple A Risk Finance Poland"
-date: "22 October 2015"
+date: "16 October 2015"
 output: ioslides_presentation
 font-family: 'Open Sans'
 smaller: yes
@@ -43,6 +43,7 @@ source("credentials.R")
 * Main usage: Statistical and numerical computing, Data Analysis, Data Visualisation
 * Under GNU GPL (General Public License) allowing commercial usage
 * Power of R in its <b>packages</b>
+* Enterprise version - Revolution Analytics (Microsoft)
 
 <b>“Everything that exists [in R] is an object. Everything that happens [in R] is a function call.”</b> - John Chambers
 
@@ -734,7 +735,7 @@ $\hat{\mu}_{x}(t) = \alpha_{x}$
 
 ## Predictor
 
-```{r, echo=FALSE, warning=FALSE, message=FALSE}
+```{r, echo=FALSE, warning=FALSE, message=FALSE, cache=TRUE}
 plot_qall
 ```
 
@@ -742,7 +743,7 @@ $\hat{\mu}_{x}(t) = \alpha_{x} + \kappa_{t}$
 
 ## Predictor
 
-```{r, echo=FALSE}
+```{r, echo=FALSE, cache=TRUE}
 plot_qall
 ```
 
@@ -750,7 +751,7 @@ $\hat{\mu}_{x}(t) = \alpha_{x} + \beta_{x} \kappa_{t}$
 
 ## Predictor
 
-```{r, echo=FALSE}
+```{r, echo=FALSE, cache = TRUE}
 plot_qall
 ```
 
@@ -808,6 +809,29 @@ plot_q
 
 $\hat{\mu}_{x}(t) = \alpha_{x} + \sum^{N}_{i=1} \beta^{i}_{x} \kappa^{i}_{t} + \beta^{0}_{x} \gamma_{t-x}$ <font size="4">$N$ - number of age-period terms</font>
 
+## Cohort effect
+
+```{r, message=FALSE, warning=FALSE, echo=FALSE}
+load("skDemo.RData")
+years <- skDemo$year
+ages<- skDemo$age
+Dxt <- skDemo$rate[[3]] * skDemo$pop[[3]]
+E0xt <- skDemo$pop[[3]] + 0.5 * Dxt
+Ecxt <- skDemo$pop[[3]]
+qxt <- Dxt/E0xt
+```
+
+```{r setup, results='asis', echo=FALSE, warning=FALSE}
+library(knitr)
+library(rgl)
+knit_hooks$set(webgl = hook_webgl)
+knitr::opts_chunk$set(cache=FALSE)
+```
+```{R, testgl, webgl=TRUE, echo=FALSE,  fig.height=5, warning=FALSE}
+persp3d(ages[0:100], years, log(qxt)[0:100,], col="skyblue", shade=TRUE,xlab="Ages (0-100)",
+        ylab="Years",zlab="Mortality rate (log)")
+```
+
 ## Models Predictor {.smaller}
 
 <b>Generalised Age-Period-Cohort Stochastic Mortality Models</b>
@@ -822,7 +846,7 @@ $\hat{\mu}_{x}(t) = \alpha_{x} + \sum^{N}_{i=1} \beta^{i}_{x} \kappa^{i}_{t} + \
 <center>$\hat{\mu_{xt}} = \kappa^{(1)}_{t} + (x-\bar{x})\kappa^{(2)}_{t}$</center>
 
 * Renshaw and Haberman (RH) 
-<center>$\hat{\mu_{xt}} = \alpha_{x} + \beta^{(1)}_{x} \kappa^{(1)}_{t} + +\gamma_{t-x}$</center>
+<center>$\hat{\mu_{xt}} = \alpha_{x} + \beta^{(1)}_{x} \kappa^{(1)}_{t} + \gamma_{t-x}$</center>
 
 ## Models Predictor {.smaller}
 
@@ -887,10 +911,22 @@ Good practice
 ## <font color="white">.</font>
 <center><font size="72"><b>R Workshop</b></font></center>
 
-## R getting started
+## Case Study {.small}
 
-* Create a new folder and put the R scripts prepared for the workshop there
-https://github.com/TARF/SMM/raw/master/Case_studies.zip
+* Dutch mortality data from Human Mortality Database
+
+* Look at mortality models: LC, APC, CBD, RH, M6-M8, PLAT
+    * Fit models
+    * Analyse model fit
+    * Project mortalities
+
+* Benchmark against AG table
+
+* BEL and SCR Projection for a portfolio
+
+* Writting own packages in R
+
+## R getting started
 
 * Set working directory <b>Session > Set Working Directory > Choose Directory...</b> or press <b>Ctrl+Shift+H</b> and select the folder or use the console
 
@@ -898,23 +934,6 @@ https://github.com/TARF/SMM/raw/master/Case_studies.zip
 setwd('<directory name>') # wrapped in '' 
 ## for Windows the path uses / instead \
 ```
-
-* Install required packages
-
-```{r, eval=FALSE}
-install.packages(c("demography","StMoMo","rgl",
-                   "fanplot", "ggplot2", "gridExtra", "reshape2"))
-```
-
-## Case Study {.small}
-
-Dutch mortality data from Human Mortality Database
-
-Look at mortality models: LC, APC, CBD, RH, M6-M8, PLAT
-
-BEL and SCR Projection for a portfolio
-
-Open script stmomoNL.R
 
 ## Exercises
 

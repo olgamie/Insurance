@@ -1,9 +1,10 @@
 ## Install packages for the tutorial
-#install.packages(c("demography","StMoMo","rgl","fanplot", "ggplot2", "gridExtra", "reshape2"))
+install.packages(c("demography","StMoMo","rgl","fanplot", 
+                   "ggplot2", "gridExtra", "reshape2"))
 
 ## Install own package from Triple A repository on GitHub
-# library(devtools)
-# devtools::install_github("TARF/insureR")
+library(devtools)
+devtools::install_github("TARF/insureR")
 
 ## Load required libraries
 library(demography)
@@ -21,7 +22,7 @@ library(insureR)
 #source("Case_study/temp_functions.R")
 
 # skDemo<-hmd.mx("NLD", username=username, password=password)
-load("Case_study/nlDemo.RData")
+load("nlDemo.RData")
 years <- 1950:2012
 ages<- skDemo$age
 Dxt <- skDemo$rate[[3]] * skDemo$pop[[3]]
@@ -260,7 +261,7 @@ extrapolate <- kannistoExtrapolation(PLATqxt, ages.fit, years_chart)
 PLATqxtExtr <- extrapolate$qxt
 
 ## Read in AG table
-ag <- read.csv("Case_study/ag-total.csv", row.names = 1)
+ag <- read.csv("ag-total.csv", row.names = 1)
 colnames(ag) <- as.character(2014:(2014+ncol(ag)-1))
 ag <- as.matrix(ag[46:121,], rownames.force=T)
 
@@ -272,10 +273,10 @@ models <- list(LCqxtExtr = LCqxtExtr, APCqxtExtr = APCqxtExtr, RHqxtExtr = RHqxt
 ## Assumption annuity due deffered at 65
 
 ## Read in portfolio data
-portfolio <- read.csv('Case_study/portfolio.csv')
+portfolio <- read.csv('portfolio.csv')
 
 ## Read in experience data
-experience.factors <- read.csv('Case_study/experience-factors.csv')
+experience.factors <- read.csv('experience-factors.csv')
 
 ages.fit <- 45:120
 valyear <- 2015
@@ -372,3 +373,41 @@ ggplot(data=plot_df, aes(x=models, y=value, fill=variable)) +
   xlab("Models") + ylab("Amount in EUR") + ggtitle("BEL and SCR for a portfolio") +
   theme(panel.grid.major.x=element_blank(), axis.line = element_line(colour = "black", size =0.2), axis.title.x=element_text(family="sans",size=rel(1)),
         axis.title.y=element_text(family="sans",size=rel(1), angle=90), plot.title = element_text(family="sans", size=20, face="bold", vjust=2))
+
+## Parametr uncerainity
+## Due to the procedure extensivnes done only for one model for ilustarion purposes
+
+bootPLAT <- bootstrap(PLATfit, nBoot = 200, type = "semiparametric")
+PLATsimb <- simulate(bootPLAT, h = forecastTime)
+
+forPLAT <- forecast(PLATfit, h = forecastTime)
+PLATsim <- simulate(PLATfit, nsim = 200, h = forecastTime)
+
+mxt <- PLATfit$Dxt / PLATfit$Ext
+mxtHat <- fitted(PLATfit, type = "rates")
+mxtCentral <- forPLAT$rates
+#95% Prediction intervals without parameter uncertainty
+mxtPred2.5 <- apply(PLATsim $rates, c(1, 2), quantile, probs = 0.005, na.rm=T)
+mxtPred97.5 <- apply(PLATsim $rates, c(1, 2), quantile, probs = 0.995, na.rm=T)
+#95% intervals with parameter uncertainty (in sample, and predictions)
+mxtHatPU2.5 <- apply(PLATsimb$fitted, c(1, 2), quantile, probs = 0.005, na.rm=T)
+mxtHatPU97.5 <- apply(PLATsimb$fitted, c(1, 2), quantile, probs = 0.995, na.rm=T)
+mxtPredPU2.5 <- apply(PLATsimb$rates, c(1, 2), quantile, probs = 0.005, na.rm=T)
+mxtPredPU97.5 <- apply(PLATsimb$rates, c(1, 2), quantile, probs = 0.995, na.rm=T)
+#Plot
+x <- c("65", "75", "85")
+matplot(PLATfit$years, t(mxt[x, ]),
+        xlim = range(PLATfit$years, forPLAT$years),
+        ylim = range(mxtHatPU97.5[x, ], mxtPredPU2.5[x, ], mxt[x, ]),
+        type = "p", xlab = "Years", ylab = "Mortality rates (log scale)",
+        log = "y", pch = 21, col = "black")
+matlines(PLATfit$years, t(mxtHat[x, ]), lty = 1, col = "black")
+matlines(PLATfit$years, t(mxtHatPU2.5[x, ]), lty = 5, col = "red")
+matlines(PLATfit$years, t(mxtHatPU97.5[x, ]), lty = 5, col = "red")
+matlines(forPLAT$years, t(mxtCentral[x, ]), lty = 4, col = "black")
+matlines(PLATsim $years, t(mxtPred2.5[x, ]), lty = 3, col = "black")
+matlines(PLATsim $years, t(mxtPred97.5[x, ]), lty = 3, col = "black")
+matlines(PLATsimb$years, t(mxtPredPU2.5[x, ]), lty = 5, col = "red")
+matlines(PLATsimb$years, t(mxtPredPU97.5[x, ]), lty = 5, col = "red")
+text(1970, mxtHatPU2.5[x, "1990"], labels = c("x=65", "x=75", "x=85"))
+
